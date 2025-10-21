@@ -444,7 +444,7 @@
         nodes.forEach(node => {
             node.addEventListener('click', function(e) {
                 const info = this.getAttribute('data-info');
-                const hasImage = this.getAttribute('data-image');
+                const hasImage = this.getAttribute('data-image'); // can be "true" or a filename
                 const nodeId = this.getAttribute('data-id');
                 currentNodeId = nodeId;
                 
@@ -460,8 +460,12 @@
                         <p>${formattedInfo}</p>
                     `;
                     
+                    // Resolve image path for GitHub Pages (use relative path)
                     if (hasImage) {
-                        content += '<img src="/tab.png" alt="Tarification différenciée">';
+                        // If data-image holds a filename, use it; otherwise fallback to "tab.png" in same folder
+                        const imageFile = (hasImage !== 'true') ? hasImage : 'tab.png';
+                        // Use relative path (no leading slash) so it works on GitHub Pages repo pages
+                        content += `<img src="${encodeURI(imageFile)}" alt="Tarification différenciée">`;
                     }
                     
                     infoCard.innerHTML = content;
