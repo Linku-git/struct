@@ -462,10 +462,7 @@
                     
                     // Resolve image path for GitHub Pages (use relative path)
                     if (hasImage) {
-                        // If data-image holds a filename, use it; otherwise fallback to "tab.png" in same folder
-                        const imageFile = (hasImage !== 'true') ? hasImage : 'tab.png';
-                        // Use relative path (no leading slash) so it works on GitHub Pages repo pages
-                        content += `<img src="${encodeURI(imageFile)}" alt="Tarification différenciée">`;
+                        content += '<img src="/tab.png" alt="Tarification différenciée">';
                     }
                     
                     infoCard.innerHTML = content;
