@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marrakech Mobilité - Structure des Documents</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .trees-container {
+            display: flex;
+            flex-direction: column;
+            gap: 50px;
+        }
+
+        .tree-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .tree-title {
+            font-size: 1.8em;
+            color: #667eea;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .tree {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .node {
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .node-content {
+            display: inline-block;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .node-content:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .level-1 {
+            margin-left: 0;
+        }
+
+        .level-2 {
+            margin-left: 60px;
+            position: relative;
+        }
+
+        .level-2::before {
+            content: '';
+            position: absolute;
+            left: -40px;
+            top: 20px;
+            width: 30px;
+            height: 2px;
+            background: #667eea;
+        }
+
+        .level-2::after {
+            content: '';
+            position: absolute;
+            left: -40px;
+            top: -15px;
+            width: 2px;
+            height: calc(100% + 30px);
+            background: #667eea;
+        }
+
+        .level-3 {
+            margin-left: 120px;
+            position: relative;
+        }
+
+        .level-3::before {
+            content: '';
+            position: absolute;
+            left: -40px;
+            top: 20px;
+            width: 30px;
+            height: 2px;
+            background: #764ba2;
+        }
+
+        .level-3::after {
+            content: '';
+            position: absolute;
+            left: -40px;
+            top: -15px;
+            width: 2px;
+            height: calc(100% + 30px);
+            background: #764ba2;
+        }
+
+        .level-2 .node-content {
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        }
+
+        .level-3 .node-content {
+            background: linear-gradient(135deg, #4c51bf 0%, #553c9a 100%);
+        }
+
+        .info-card {
+            position: fixed;
+            background: white;
+            border-radius: 12px;
+            /* increased right padding so the close button doesn't overlap the title */
+            padding: 25px 64px 25px 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            max-width: 600px;
+            z-index: 1000;
+            display: none;
+            border: 2px solid #667eea;
+        }
+
+        .info-card.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            width: 34px;
+            height: 34px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 1100; /* ensure it sits above the card content */
+        }
+
+        .close-btn:hover {
+            background: #764ba2;
+            transform: rotate(90deg);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .info-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+            /* ensure title has room on the right for the button */
+            margin-right: 12px;
+        }
+
+        .info-card p {
+            color: #333;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        .info-card ul {
+            margin-left: 20px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .info-card img {
+            max-width: 100%;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+
+        .last-child::after {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .level-2 {
+                margin-left: 30px;
+            }
+            
+            .level-3 {
+                margin-left: 60px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .info-card {
+                max-width: 90vw;
+                padding: 18px 54px 18px 18px;
+            }
+
+            .close-btn {
+                top: 12px;
+                right: 12px;
+                width: 30px;
+                height: 30px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Marrakech Mobilité - Structure des Documents</h1>
+        
+        <div class="trees-container">
+            <!-- Tree 1: Dossier Administratif -->
+            <div class="tree-section">
+                <h2 class="tree-title">1. Dossier Administratif</h2>
+                <div class="tree">
+                    <div class="node level-1" data-info="Présentée par Supratours SA – Groupe ONCF.<br>Référence à la création de la filiale SUM – Supratours Urbain Mobility.<br>Engagement à accompagner la mise en œuvre du nouveau modèle de gestion déléguée de Marrakech Mobilité." data-id="admin-1">
+                        <div class="node-content">Lettre de candidature et de motivation</div>
+                    </div>
+                    <div class="node level-1" data-info="Projet de statuts, capital, siège, gouvernance, ancrage à Marrakech." data-id="admin-2">
+                        <div class="node-content">Engagement de création de la filiale SUM</div>
+                    </div>
+                    <div class="node level-1" data-info="Procurations, délégations de signature, désignation du mandataire." data-id="admin-3">
+                        <div class="node-content">Pouvoirs et habilitations</div>
+                    </div>
+                    <div class="node level-1" data-info="CNSS, DGI, AMO, conformité juridique.<br>Attestations bancaires, casier judiciaire, probité." data-id="admin-4">
+                        <div class="node-content">Attestations administratives et fiscales</div>
+                    </div>
+                    <div class="node level-1 last-child" data-info="Acceptation sans réserve du cahier des charges.<br>Règlement de consultation et futur contrat de gestion déléguée." data-id="admin-5">
+                        <div class="node-content">Engagement sur le respect du cadre juridique et contractuel DSP</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tree 2: Mémoire Technique -->
+            <div class="tree-section">
+                <h2 class="tree-title">2. Mémoire Technique</h2>
+                <div class="tree">
+                    <div class="node level-1" data-info="Historique, expertise, et ancrage de Supratours dans le groupe ONCF.<br>Création de SUM – Supratours Urbain Mobility comme opérateur dédié à la mobilité urbaine.<br>Vision stratégique : du transport interurbain à la mobilité intégrée urbaine et durable.<br>Références techniques, financières et institutionnelles au Maroc et à l'international." data-id="tech-1">
+                        <div class="node-content">Présentation de Supratours et de SUM</div>
+                    </div>
+                    
+                    <div class="node level-1" data-info="Analyse du périmètre de Marrakech Mobilité SA : population, zones, pôles d'attraction.<br>Objectifs du nouveau modèle : performance, inclusion, transition énergétique, souveraineté numérique.<br>Contexte de rupture : fin du modèle historique, nouvelle gouvernance publique locale.<br>Nouveaux enjeux : transport à la demande, uberisation du marché marocain, mobilité douce, horizon CAN 2025 / Coupe du Monde 2030." data-id="tech-2">
+                        <div class="node-content">Compréhension du périmètre et du contexte de rupture</div>
+                    </div>
+                    
+                    <div class="node level-1" data-info="Chaque étape est régie par une préparation, une offre technique, une offre économique, et une transition vers l'étape suivante." data-id="tech-3">
+                        <div class="node-content">Organisation de l'exploitation</div>
+                    </div>
+                    
+                    <div class="node level-2" data-info="Préparation du dispositif opérationnel dès la phase d'appel d'offres.<br>Audit du réseau existant, inventaire des biens, plan de transfert du personnel.<br>Mise en place de la filiale SUM et du dispositif de préfiguration." data-id="tech-3-1">
+                        <div class="node-content">Étape 1 – Pré-exploitation</div>
+                    </div>
+                    
+                    <div class="node level-2" data-info="Reprise de service sans interruption.<br>Stabilisation sociale et technique.<br>Diagnostic en conditions réelles (trafic, lignes, recettes)." data-id="tech-3-2">
+                        <div class="node-content">Étape 2 – Exploitation du réseau actuel</div>
+                    </div>
+                    
+                    <div class="node level-2" data-info="Déploiement des bus neufs, équipements SAEIV et billettique.<br>Réorganisation du réseau (lignes fortes, standard, sociales).<br>Introduction progressive de la grille tarifaire différenciée." data-id="tech-3-3">
+                        <div class="node-content">Étape 3 – Exploitation avec flotte complète</div>
+                    </div>
+                    
+                    <div class="node level-2" data-info="Consolidation du modèle d'exploitation et du modèle tarifaire.<br>Introduction du transport à la demande, services à la mobilité douce.<br>Intégration des données pour pilotage prédictif." data-id="tech-3-4">
+                        <div class="node-content">Étape 4 – Pérennisation du réseau</div>
+                    </div>
+                    
+                    <div class="node level-2" data-info="Exploitation intégrée BHNS / bus / mobilité douce.<br>Interopérabilité complète des systèmes, supervision centralisée.<br>Stabilisation du modèle économique et numérique." data-id="tech-3-5">
+                        <div class="node-content">Étape 5 – Mise en service du BHNS et réseau définitif</div>
+                    </div>
+                    
+                    <!-- Mémoire Technique (after Étape 5) -->
+                    <div class="node level-1" data-info="Inventaire, diagnostic technique, plan de remise à niveau.<br>Traçabilité contractuelle des biens (bus, dépôts, signalétique, etc.).<br>Gestion patrimoniale numérique via plateforme SUM Asset." data-id="tech-4">
+                        <div class="node-content">Réception et gestion des biens mis à disposition</div>
+                    </div>
+
+                    <div class="node level-1" data-info="Organisation par site et par étape d'exploitation.<br>Maintenance préventive et corrective connectée (IoT).<br>Gestion énergétique et sécurité des dépôts." data-id="tech-5">
+                        <div class="node-content">Plan de maintenance, ateliers et gestion des dépôts</div>
+                    </div>
+
+                    <div class="node level-1" data-info="SAEIV interopérable et intégration BHNS.<br>Billettique à architecture ouverte (ITxPT, QR, NFC).<br>Interface usager et portail cloud souverain.<br>Tableau de bord d'exploitation et reporting au délégant." data-id="tech-6">
+                        <div class="node-content">Systèmes numériques : SAEIV, billettique et supervision</div>
+                    </div>
+
+                    <div class="node level-1" data-info="Plan de reprise et formation du personnel existant.<br>Création d'une Académie SUM à Marrakech.<br>Plan d'évolution et de motivation (bonus performance, mobilité interne)." data-id="tech-7">
+                        <div class="node-content">Ressources humaines et politique sociale</div>
+                    </div>
+
+                    <div class="node level-1" data-info="Démarche QSE intégrée et pilotée numériquement.<br>Certification ISO 9001 / 14001 / 45001 à horizon 3 ans.<br>Culture sécurité et sensibilisation continue." data-id="tech-8">
+                        <div class="node-content">Plan de qualité, sécurité et environnement (QSE)</div>
+                    </div>
+
+                    <div class="node level-1" data-info="Gouvernance contractuelle : comités, audits, indicateurs, alertes.<br>Reporting automatisé, indicateurs KPI (ponctualité, taux de service, satisfaction).<br>Dialogue permanent et transparence totale des données." data-id="tech-9">
+                        <div class="node-content">Gouvernance et reporting au délégant</div>
+                    </div>
+
+                    <div class="node level-1" data-info="Études de faisabilité pour dépôts et stations de recharge.<br>Suivi de l'empreinte carbone et partenariats pour compensation CO₂." data-id="tech-10">
+                        <div class="node-content">Transition énergétique et durabilité</div>
+                    </div>
+
+                    <div class="node level-1" data-info="Centre de relation voyageurs (CRV), application mobile SUM.<br>Services additionnels : publicité, data, Wi-Fi, bornes connectées.<br>Transport à la demande, micro-mobilité, logistique urbaine légère." data-id="tech-11">
+                        <div class="node-content">Services annexes et innovation</div>
+                    </div>
+
+                    <div class="node level-1" data-info="Connexion bus ↔ vélo ↔ trottinettes ↔ marche ↔ parkings relais.<br>Aménagements multimodaux intégrés au plan BHNS.<br>Développement des corridors verts et circuits apaisés." data-id="tech-12">
+                        <div class="node-content">Mobilité douce et intégration urbaine</div>
+                    </div>
+
+                    <div class="node level-1" data-info="Billettique unique et interopérable : bus, BHNS, trottinettes, vélos, taxis, motos électriques, TGV, autocar.<br>Application SUM MaaS : planification, rechargement, suivi en temps réel.<br>Plateforme cloud souverain : collecte de données et IA prédictive.<br>Objectif 2030 : 'Morocco Mobility Pass', intégrant tous les réseaux publics." data-id="tech-13">
+                        <div class="node-content">Digitalisation intégrée et convergence des modes de transport</div>
+                    </div>
+
+                    <div class="node level-1" data-info="" data-id="tech-14">
+                        <div class="node-content">Politique tarifaire évolutive et différenciée</div>
+                    </div>
+
+                    <div class="node level-2" data-info="Chaque étape d'exploitation (1 à 5) inclut une phase d'ajustement tarifaire pour garantir la soutenabilité économique et l'accessibilité sociale." data-id="tech-15">
+                        <div class="node-content">Évolution tarifaire par étape</div>
+                    </div>
+
+                    <div class="node level-3" data-info="Tarification transitoire identique à l'opérateur sortant." data-id="tech-16">
+                        <div class="node-content">Étape 1 – Pré-exploitation</div>
+                    </div>
+
+                    <div class="node level-3" data-info="Réévaluation fondée sur la fréquentation réelle et les coûts observés." data-id="tech-17">
+                        <div class="node-content">Étape 2 – Réseau actuel</div>
+                    </div>
+
+                    <div class="node level-3" data-info="Introduction du barème différencié (lignes fortes, standard, sociales)." data-id="tech-18">
+                        <div class="node-content">Étape 3 – Flotte complète</div>
+                    </div>
+
+                    <div class="node level-3" data-info="Révision tarifaire par indice de performance et satisfaction." data-id="tech-19">
+                        <div class="node-content">Étape 4 – Pérennisation</div>
+                    </div>
+
+                    <div class="node level-3" data-info="Intégration du tarif multimodal unique (bus + BHNS + modes doux)." data-id="tech-20">
+                        <div class="node-content">Étape 5 – BHNS et réseau final</div>
+                    </div>
+
+                    <div class="node level-2 last-child" data-info="La tarification est adaptée à la typologie du service pour favoriser l'équité territoriale et l'efficacité économique.<br>Cette différenciation sera ajustée par scénario d'exploitation (urbain / périurbain) et indexée sur la fréquentation réelle observée par les outils SAEIV et billettique." data-image="true" data-id="tech-21">
+                        <div class="node-content">Tarification différenciée par catégorie de ligne</div>
+                    </div>
+
+                    <div class="node level-2 last-child" data-info="Intégration du tarif bus dans les correspondances avec trottinette, vélo, taxi, autocar, TGV.<br>Création d'un forfait mobilité globale (jour, semaine, mois) pour usage combiné.<br>Bonification écologique pour les trajets hybrides bus + mode doux." data-id="tech-22">
+                        <div class="node-content">Harmonisation avec la multimodalité</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tree 3: Mémoire financier -->
+            <div class="tree-section">
+                <h2 class="tree-title">3. Mémoire financier</h2>
+                <div class="tree">
+                    <div class="node level-1" data-info="" data-id="fin-1">
+                        <div class="node-content">Politique tarifaire évolutive et différenciée</div>
+                    </div>
+
+                    <div class="node level-2" data-info="Détail par phase et par famille d'équipements." data-id="fin-2">
+                        <div class="node-content">Plan d'investissement (CAPEX)</div>
+                    </div>
+
+                    <div class="node level-2" data-info="Scénarios d'exploitation progressive et d'évolution tarifaire." data-id="fin-3">
+                        <div class="node-content">Compte d'exploitation prévisionnel (10 ans)</div>
+                    </div>
+
+                    <div class="node level-2" data-info="Répartition des apports, emprunts, partenariats, fonds verts." data-id="fin-4">
+                        <div class="node-content">Structure de financement</div>
+                    </div>
+
+                    <div class="node level-2" data-info="Intégration des coûts selon la montée en charge du parc." data-id="fin-5">
+                        <div class="node-content">Plan de maintenance et renouvellement</div>
+                    </div>
+
+                    <div class="node level-2" data-info="Recettes tarifaires par catégorie de ligne et par zone.<br>Équilibre budgétaire par phase (pré-exploitation → BHNS)." data-id="fin-6">
+                        <div class="node-content">Hypothèses de recettes et subventions d'équilibre</div>
+                    </div>
+
+                    <div class="node level-2 last-child" data-info="Modélisation des recettes selon les 5 étapes.<br>Impact de la tarification différenciée sur la fréquentation et la rentabilité.<br>Indicateurs d'équilibre et de rentabilité (TRI, DSCR, seuil de compensation)." data-id="fin-7">
+                        <div class="node-content">Scénarios d'évolution tarifaire et performance économique</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-card" id="infoCard"></div>
+    
+    <script>
+        // Info card functionality
+        const nodes = document.querySelectorAll('.node');
+        const infoCard = document.getElementById('infoCard');
+        let currentNodeId = null;
+
+        nodes.forEach(node => {
+            node.addEventListener('click', function(e) {
+                const info = this.getAttribute('data-info');
+                const hasImage = this.getAttribute('data-image');
+                const nodeId = this.getAttribute('data-id');
+                currentNodeId = nodeId;
+                
+                if (info && info.trim() !== '') {
+                    const title = this.querySelector('.node-content').textContent;
+                    
+                    // Convert line breaks to <br> tags
+                    const formattedInfo = info.replace(/\n/g, '<br>');
+                    
+                    let content = `
+                        <button class="close-btn" onclick="closeInfoCard()">×</button>
+                        <h3>${title}</h3>
+                        <p>${formattedInfo}</p>
+                    `;
+                    
+                    if (hasImage) {
+                        content += '<img src="https://placehold.co/600x300?text=Diagramme+de+tarification" alt="Tarification différenciée">';
+                    }
+                    
+                    infoCard.innerHTML = content;
+                    infoCard.classList.add('active');
+                    
+                    const rect = this.getBoundingClientRect();
+                    let left = rect.right + 20;
+                    let top = rect.top;
+                    
+                    if (left + 600 > window.innerWidth) {
+                        left = rect.left - 620;
+                    }
+                    
+                    if (left < 10) {
+                        left = 10;
+                    }
+                    
+                    if (top + 400 > window.innerHeight) {
+                        top = window.innerHeight - 410;
+                    }
+                    
+                    if (top < 10) {
+                        top = 10;
+                    }
+                    
+                    infoCard.style.left = left + 'px';
+                    infoCard.style.top = top + 'px';
+                }
+            });
+        });
+
+        function closeInfoCard() {
+            infoCard.classList.remove('active');
+            currentNodeId = null;
+        }
+
+        // Close card when clicking outside
+        document.addEventListener('click', function(e) {
+            if (infoCard.classList.contains('active') && 
+                !infoCard.contains(e.target) && 
+                !e.target.closest('.node')) {
+                closeInfoCard();
+            }
+        });
+    </script>
+</body>
+</html>
